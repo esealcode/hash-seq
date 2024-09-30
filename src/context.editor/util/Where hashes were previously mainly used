@@ -1,0 +1,10 @@
+Can we make it match?.................................
+
+Where hashes were previously mainly used as mathematical objects without any meaning outside the fact that it binds an input to a fixed length output, nowadays those objects that we call hashes can be considered as more than that. With a bit of research I've ended up on various interesting projects such as Amulet, a not so well known project that considers the sha256 hexadecimal digest of a poem as something potentially valuable based on specific pattern in the digest itself. Nowadays it could be somewhat linked to NFTs but I do think that they're much more than that.
+
+The sha256 is the current state of the art in hash functions and is extensively used across a broad range of computer science domains. If you think it is somewhat only present in integrity check for files, Amulet will have proven you wrong. But more than that, it is a valuable asset in blockchains which are a pretty important piece of technology recently.
+Blockchains core objects, called the "blocks" are meant to provide a safe and immutable record of transactions that happened on the network and can be mathematically proved valid. Where hashes functions are used, creativity is often involved. If it wasn't for hash functions, the blockchain as we know it today wouldn't exist.
+
+Bitcoin, pretty much considered as the digital gold nowadays, uses sha256 hashes at its core to prove that the chain is valid by leveraging its properties to create computationally very expensive challenges to validate a block that'll end up stored on its blockchain. It is something that seems obvious to blockchain enthusiast now but it definitely wasn't when the paper was released. But recently we somewhat don't really see many more creative use of hashes much.
+
+I pretty much believe that this project, on paper, can be the "it" factor for more creative uses by a lot more people. Any enthusiast

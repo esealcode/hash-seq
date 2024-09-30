@@ -28,16 +28,17 @@ export const PlaintextEditor = memo<{}>((props) => {
         () => dictionnary.split(/\n|\r\n/).filter((word) => word.length > 0),
         [dictionnary]
     )
-    const { sequence, expect } = useMemo(() => {
+    const { sequence, expect, strength, trust } = useMemo(() => {
         return sequencer({
-            contract,
+            type: 'self-inferring',
+            bind: contract,
             plaintext,
-            words,
+            //words,
             strict,
         })
     }, [contract, plaintext, words, strict])
 
-    console.debug(`@plaintext`, { sequence, expect })
+    console.debug(`@plaintext`, { sequence, expect, strength })
 
     const currentMatch = sequence[sequence.length - 1]
     const wordUsageCountExpectation = Math.ceil(
@@ -61,7 +62,7 @@ export const PlaintextEditor = memo<{}>((props) => {
                     render={({ field }) => {
                         return (
                             <Textarea
-                                className="w-full"
+                                className="w-fulll h-[calc(400rem/16)]"
                                 placeholder="Write here..."
                                 {...field}
                                 ref={(e) => {

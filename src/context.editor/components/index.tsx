@@ -48,18 +48,18 @@ export const Editor = memo((props) => {
                         defaultValue="whatisit"
                         className="w-[calc(600rem/16)]"
                     >
-                        <TabsList className="grid w-full grid-cols-4">
+                        <TabsList className="grid w-full grid-cols-3">
                             <TabsTrigger value="whatisit">
                                 What is this?
                             </TabsTrigger>
-                            <TabsTrigger value="configuration">
+                            {/*                             <TabsTrigger value="configuration">
                                 Configuration
-                            </TabsTrigger>
+                            </TabsTrigger> */}
                             <TabsTrigger
-                                value="contract"
+                                value="binding"
                                 disabled={!form.formState.isValid}
                             >
-                                Contract
+                                Binding
                             </TabsTrigger>
                             <TabsTrigger
                                 value="writing"
@@ -80,7 +80,7 @@ export const Editor = memo((props) => {
                                 <CardContent className="space-y-2"></CardContent>
                             </Card>
                         </TabsContent>
-                        <TabsContent value="configuration">
+                        {/*                         <TabsContent value="configuration">
                             <Card>
                                 <CardHeader>
                                     <CardTitle>Configuration</CardTitle>
@@ -94,18 +94,15 @@ export const Editor = memo((props) => {
                                     <Configuration />
                                 </CardContent>
                             </Card>
-                        </TabsContent>
-                        <TabsContent value="contract">
+                        </TabsContent> */}
+                        <TabsContent value="binding">
                             <Card>
                                 <CardHeader>
-                                    <CardTitle>Define the rules</CardTitle>
+                                    <CardTitle>Define your binding</CardTitle>
                                     <CardDescription>
-                                        Anything you'll write here will apply to
-                                        what you'll write in the next tab as
-                                        long as it stay within reasonable
-                                        bounds. We call it a "contract", it can
-                                        set ownership, govern over the
-                                        copyrights etc...
+                                        Anything you write here will apply to
+                                        the text you'll write in the next tab.
+                                        Be creative!
                                     </CardDescription>
                                 </CardHeader>
                                 <CardContent className="space-y-2">
