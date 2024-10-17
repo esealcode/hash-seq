@@ -1,51 +1,63 @@
 'use client'
 
-import { memo, useRef, useMemo } from 'react'
+import { memo, useMemo, useEffect, useRef } from 'react'
 import { useWatch } from 'react-hook-form'
-import { last } from 'lodash'
 
-import { FormField } from '@/components/ui/form'
-import { Typo } from '@/components/ui/typography'
 import { Button } from '@/components/ui/button'
-import { useProofForm } from '@/context.editor/hooks/useProofForm'
+import { FormField } from '@/components/ui/form'
+import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
-import { WordHint } from './WordHint'
+import { Typo } from '@/components/ui/typography'
+import { useProofForm } from '@/context.editor/hooks/useProofForm'
 import { sequencer } from '@/context.editor/util/sequencer'
-import { cn } from '@/lib/utils'
-import { manualForwardRef } from '@/context.editor/util/react'
 
 export const PlaintextEditor = memo<{}>((props) => {
     const form = useProofForm()
-    const strict = useWatch({ control: form.control, name: 'config.strict' })
     const contract = useWatch({ control: form.control, name: 'contract' })
     const plaintext = useWatch({ control: form.control, name: 'plaintext' })
-    const dictionnary = useWatch({
-        control: form.control,
-        name: 'config.dictionnary',
-    })
+    const skipMap = useWatch({ control: form.control, name: 'skipMap' })
 
-    const words = useMemo(
-        () => dictionnary.split(/\n|\r\n/).filter((word) => word.length > 0),
-        [dictionnary]
-    )
-    const { sequence, expect, strength, trust } = useMemo(() => {
+    const {
+        acceptedTokenLists,
+        state,
+        sequence,
+        expect,
+        strength,
+        trust,
+        outSkipMap,
+    } = useMemo(() => {
         return sequencer({
-            type: 'self-inferring',
             bind: contract,
             plaintext,
-            //words,
-            strict,
+            skipMap,
         })
-    }, [contract, plaintext, words, strict])
+    }, [contract, plaintext, skipMap])
 
-    console.debug(`@plaintext`, { sequence, expect, strength })
-
-    const currentMatch = sequence[sequence.length - 1]
-    const wordUsageCountExpectation = Math.ceil(
-        Math.log2(2 ** 128) / Math.log2(words.length)
+    const TARGET_STRENGTH = 2 ** 128
+    const hasReachedTarget = strength >= TARGET_STRENGTH
+    const expectedRemainingWordCount = Math.ceil(
+        Math.log2(2 ** 128) /
+            Math.log2(strength) /
+            Math.log2(acceptedTokenLists.length)
     )
 
+    const progress =
+        expectedRemainingWordCount > 0
+            ? (
+                  Math.min(
+                      sequence.length /
+                          (sequence.length + expectedRemainingWordCount),
+                      1
+                  ) * 100
+              ).toFixed(2)
+            : 0
+
     const textareaRef = useRef<HTMLTextAreaElement>(null)
+
+    console.debug(`@seq`, { outSkipMap })
+    useEffect(() => {
+        form.setValue('skipMap', outSkipMap.join(''))
+    }, [outSkipMap, form.setValue])
 
     return (
         <div className="flex flex-col gap-6">
@@ -53,8 +65,20 @@ export const PlaintextEditor = memo<{}>((props) => {
                 <Typo.text>
                     Use the word:{' '}
                     <Typo.strong>
-                        {expect.map((token) => token.raw).join(' ')}
+                        {expect
+                            ? expect.map((token) => token.raw).join(' ')
+                            : null}
                     </Typo.strong>
+                    <Button
+                        variant="link"
+                        size="link"
+                        className="ml-2"
+                        onClick={() => {
+                            form.setValue('skipMap', `${skipMap}.`)
+                        }}
+                    >
+                        Skip
+                    </Button>
                 </Typo.text>
                 <FormField
                     control={form.control}
@@ -74,69 +98,31 @@ export const PlaintextEditor = memo<{}>((props) => {
                     }}
                 />
             </div>
+            <div>
+                <FormField
+                    control={form.control}
+                    name="skipMap"
+                    render={({ field }) => {
+                        return (
+                            <Input
+                                placeholder="Skip map, e.g: --.------.---..-"
+                                {...field}
+                            />
+                        )
+                    }}
+                />
+            </div>
             <div className="flex flex-col gap-4">
-                <div className="flex gap-2 items-center justify-center flex-wrap">
-                    {sequence.map((token, index) => {
-                        return (
-                            <WordHint
-                                key={index}
-                                className={cn('bg-emerald-400', {
-                                    'w-4 bg-neutral-900':
-                                        index === sequence.length - 1,
-                                    'bg-red-500': token.error,
-                                })}
-                            />
-                        )
-                    })}
-                    {[
-                        ...Array(
-                            Math.max(
-                                wordUsageCountExpectation - sequence.length,
-                                0
-                            )
-                        ),
-                    ].map((_, key) => {
-                        return (
-                            <WordHint
-                                key={key}
-                                className={cn('bg-slate-400', {})}
-                            />
-                        )
-                    })}
-                </div>
-                {currentMatch?.error ? (
-                    <Typo.text className="text-end text-red-500">
-                        Unexpected token "
-                        {currentMatch.got.map((token) => token.raw).join(' ')}"
-                        at{' '}
-                        <Button
-                            variant="link"
-                            size="link"
-                            className="text-red-500"
-                            onClick={() => {
-                                console.debug(`select`, { textareaRef })
-                                textareaRef.current?.setSelectionRange(
-                                    currentMatch.got[0].indices.start,
-                                    currentMatch.got[
-                                        currentMatch.got.length - 1
-                                    ].indices.end
-                                )
-                                textareaRef.current?.focus()
-                            }}
-                        >
-                            {currentMatch.got[0].indices.start}:
-                            {
-                                currentMatch.got[currentMatch.got.length - 1]
-                                    .indices.end
-                            }
-                        </Button>
-                        , expected "
-                        {currentMatch.expect
-                            .map((token) => token.raw)
-                            .join(' ')}
-                        ".
-                    </Typo.text>
-                ) : null}
+                <Typo.text>
+                    Bind:{' '}
+                    <Typo.strong>
+                        {hasReachedTarget ? '100' : progress}% (trust:{' '}
+                        {(trust * 100).toFixed(2)}%)
+                    </Typo.strong>
+                </Typo.text>
+                <Typo.text>
+                    <Typo.small>0x{state}</Typo.small>
+                </Typo.text>
             </div>
         </div>
     )

@@ -26,14 +26,9 @@ export const Editor = memo((props) => {
         resolver: zodResolver(proofFormDataSchema),
         mode: 'all',
         defaultValues: {
-            config: {
-                minWordsPerSentence: 6,
-                maxWordsPerSentence: 32,
-                strict: false,
-                dictionnary: '',
-            },
             contract: CONTRACT_EXAMPLE,
             plaintext: '',
+            skipMap: '',
         },
     })
 
@@ -52,9 +47,6 @@ export const Editor = memo((props) => {
                             <TabsTrigger value="whatisit">
                                 What is this?
                             </TabsTrigger>
-                            {/*                             <TabsTrigger value="configuration">
-                                Configuration
-                            </TabsTrigger> */}
                             <TabsTrigger
                                 value="binding"
                                 disabled={!form.formState.isValid}
@@ -80,21 +72,6 @@ export const Editor = memo((props) => {
                                 <CardContent className="space-y-2"></CardContent>
                             </Card>
                         </TabsContent>
-                        {/*                         <TabsContent value="configuration">
-                            <Card>
-                                <CardHeader>
-                                    <CardTitle>Configuration</CardTitle>
-                                    <CardDescription>
-                                        Setup your writing experience by
-                                        configuring the random writing variables
-                                        below.
-                                    </CardDescription>
-                                </CardHeader>
-                                <CardContent className="flex flex-col space-y-2">
-                                    <Configuration />
-                                </CardContent>
-                            </Card>
-                        </TabsContent> */}
                         <TabsContent value="binding">
                             <Card>
                                 <CardHeader>

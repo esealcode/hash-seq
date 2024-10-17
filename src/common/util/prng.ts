@@ -16,10 +16,19 @@ export const createPrng = (opts: { seed: string }) => {
     }
 
     const random = (min: number, max: number) => {
+        if (min > max) {
+            throw Error('min > max in random')
+        }
+
+        if (min === max) {
+            return min
+        }
+
         return (rand() % BigInt(max - min)) + BigInt(min)
     }
 
     return {
         random,
+        getState: () => next.current,
     }
 }

@@ -129,7 +129,7 @@ const small = memo<React.ComponentProps<'small'>>((props) => {
     const { className, ...restProps } = props
     return (
         <small
-            className={cn('text-sm font-medium leading-none', className)}
+            className={cn('text-xs font-medium leading-none', className)}
             {...restProps}
         />
     )

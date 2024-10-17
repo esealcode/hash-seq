@@ -1,6 +1,6 @@
 import * as R from 'ramda'
 
-import { createPrng } from './prng'
+import { createPrng } from '../../common/util/prng'
 import { tokenizeText, isTokenListEqual, TToken } from './parse'
 
 type TSequenceTokenMatch = {
@@ -8,77 +8,67 @@ type TSequenceTokenMatch = {
     got: TToken[]
 }
 
-type TOptionVariants =
-    | {
-          type: 'with-dict'
-          words: string[]
-      }
-    | {
-          type: 'self-inferring'
-      }
-
 type TOptions = {
     bind: string
     plaintext: string
-    strict?: boolean
-} & TOptionVariants
+    skipMap: string
+}
 
 export const sequencer = (opts: TOptions) => {
     let prng = createPrng({ seed: opts.bind })
 
-    let acceptedTokenLists: TToken[][] =
-        opts.type === 'with-dict'
-            ? opts.words.map((text) => tokenizeText({ text }))
-            : []
+    const acceptedTokenLists: TToken[][] = []
 
     const tokens = tokenizeText({ text: opts.plaintext })
 
-    const generateNextTokenList = () =>
-        acceptedTokenLists.length > 0
-            ? acceptedTokenLists[
-                  Number(prng.random(0, acceptedTokenLists.length - 1))
-              ]
-            : []
+    const skipMap = opts.skipMap.split('')
+    const outSkipMap: string[] = []
+
+    const generateNextTokenList = () => {
+        console.debug(`@generate`)
+        if (acceptedTokenLists.length === 0) {
+            return null
+        }
+
+        while (true) {
+            const skipToken = skipMap.shift()
+
+            if (!skipToken || skipToken === '-') {
+                break
+            }
+
+            const ignore =
+                acceptedTokenLists[
+                    Number(prng.random(0, acceptedTokenLists.length - 1))
+                ]
+
+            wrongTokenListsEncountered.add(ignore)
+            outSkipMap.push('.')
+        }
+
+        return acceptedTokenLists[
+            Number(prng.random(0, acceptedTokenLists.length))
+        ]
+    }
 
     const sequence: TSequenceTokenMatch[] = []
 
     let expectTokenList = generateNextTokenList()
     let i = 0
     let strength = 1
-    let trust = 1
+    let trust = 0
     let wrongTokenListsEncountered: Set<TToken[]> = new Set()
 
     while (i < tokens.length) {
         const token = tokens[i]
 
-        if (opts.type === 'self-inferring') {
-            const existingAcceptedToken = acceptedTokenLists.find((tokenList) =>
-                isTokenListEqual(
-                    tokenList,
-                    tokens.slice(i, i + tokenList.length)
-                )
-            )
+        const isMatching = expectTokenList
+            ? isTokenListEqual(
+                  expectTokenList,
+                  tokens.slice(i, i + expectTokenList.length)
+              )
+            : false
 
-            if (!existingAcceptedToken) {
-                acceptedTokenLists.push([token])
-            }
-
-            if (!existingAcceptedToken && acceptedTokenLists.length === 20) {
-                expectTokenList = generateNextTokenList()
-                i++
-                continue
-            }
-
-            if (acceptedTokenLists.length < 20) {
-                i++
-                continue
-            }
-        }
-
-        const isMatching = isTokenListEqual(
-            expectTokenList,
-            tokens.slice(i, i + expectTokenList.length)
-        )
         const otherAcceptedTokenListMatch = acceptedTokenLists.find(
             (tokenList) =>
                 isTokenListEqual(
@@ -87,12 +77,21 @@ export const sequencer = (opts: TOptions) => {
                 )
         )
 
-        if (
-            expectTokenList.length > 0 &&
-            !isMatching &&
-            otherAcceptedTokenListMatch !== undefined
-        ) {
-            // Failure at...
+        const existingAcceptedToken = acceptedTokenLists.find((tokenList) =>
+            isTokenListEqual(tokenList, tokens.slice(i, i + tokenList.length))
+        )
+
+        if (!existingAcceptedToken) {
+            acceptedTokenLists.push([token])
+        }
+
+        if (!expectTokenList) {
+            i++
+            expectTokenList = generateNextTokenList()
+            continue
+        }
+
+        if (!isMatching && otherAcceptedTokenListMatch !== undefined) {
             if (!wrongTokenListsEncountered.has(otherAcceptedTokenListMatch)) {
                 wrongTokenListsEncountered.add(otherAcceptedTokenListMatch)
             }
@@ -105,19 +104,18 @@ export const sequencer = (opts: TOptions) => {
         }
 
         if (isMatching) {
-            if (opts.strict) {
-                prng = createPrng({
-                    seed: `${opts.bind}${opts.plaintext.slice(
-                        0,
-                        token.indices.start
-                    )}`,
-                })
-            }
+            prng = createPrng({
+                seed: `${opts.bind}${opts.plaintext.slice(
+                    0,
+                    token.indices.start
+                )}`,
+            })
 
             sequence.push({
                 expect: expectTokenList,
                 got: tokens.slice(i, i + expectTokenList.length),
             })
+            outSkipMap.push('-')
 
             i += expectTokenList.length
             expectTokenList = generateNextTokenList()
@@ -125,16 +123,8 @@ export const sequencer = (opts: TOptions) => {
                 acceptedTokenLists.length /
                 (wrongTokenListsEncountered.size + 1)
 
-            console.debug(`@sequencer mul strength`, {
-                strength,
-                strengthMul,
-                wrong: Array.from(wrongTokenListsEncountered),
-                acceptedTokenLists,
-            })
             strength *= strengthMul
-            trust +=
-                (wrongTokenListsEncountered.size + 1) /
-                acceptedTokenLists.length
+            trust += wrongTokenListsEncountered.size / acceptedTokenLists.length
             wrongTokenListsEncountered.clear()
 
             continue
@@ -146,15 +136,20 @@ export const sequencer = (opts: TOptions) => {
     console.debug(`@sequencer`, {
         sequence,
         strength,
+        _trust: trust,
         trust: 1 - trust / sequence.length,
         expect: expectTokenList,
         acceptedTokenLists,
+        outSkipMap,
     })
 
     return {
         sequence,
         strength,
-        trust: 1 - trust / sequence.length,
+        trust: sequence.length > 0 ? 1 - trust / sequence.length : 0,
         expect: expectTokenList,
+        acceptedTokenLists,
+        state: prng.getState().toString(16),
+        outSkipMap,
     }
 }
