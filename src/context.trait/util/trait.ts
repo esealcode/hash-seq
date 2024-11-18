@@ -8,14 +8,14 @@ export const getTraitProbability = (trait: TTrait) => {
     if (isPermutation) {
         return countPermutation({
             set: getTraitSet(trait),
-            r: trait.count,
+            r: BigInt(trait.count),
             repetition: !trait.noRepeat,
         })
     }
 
     return countCombination({
         set: getTraitSet(trait),
-        r: trait.count,
+        r: BigInt(trait.count),
         repetition: !trait.noRepeat,
     })
 }

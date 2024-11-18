@@ -26,16 +26,27 @@ export const traitSchema = z
         options: traitOptionVariantSchema,
     })
     .superRefine((trait, ctx) => {
+        if (trait.options.type === 'range') {
+            const opt = trait.options
+
+            if (opt.min > opt.max) {
+                return ctx.addIssue({
+                    code: z.ZodIssueCode.custom,
+                    path: ['options', 'min'],
+                    message: 'Must be greater than or equal to max',
+                })
+            }
+        }
+
         const set = getTraitSet(trait)
 
         const isMultiset = set.isMultiset
         const repetition = !trait.noRepeat
         const order = trait.strictOrder
 
-        console.debug(`@superrefine`, { trait, set })
         if (!repetition && trait.count > set.cardinality) {
             // Pigeon hole
-            ctx.addIssue({
+            return ctx.addIssue({
                 code: z.ZodIssueCode.custom,
                 path: ['count'],
                 message: 'Too many selection (r > n)',
@@ -44,10 +55,11 @@ export const traitSchema = z
 
         if (isMultiset && !repetition && !order) {
             // Unsupported
-            ctx.addIssue({
+            return ctx.addIssue({
                 code: z.ZodIssueCode.custom,
-                path: ['options'],
-                message: 'Unsupported parameters combination',
+                path: ['options', 'list'],
+                message:
+                    'Unsupported parameters combination (multiset + no repeat + no order)',
             })
         }
 
@@ -58,19 +70,21 @@ export const traitSchema = z
             trait.count < set.cardinality
         ) {
             // Unsupported
-            ctx.addIssue({
+            return ctx.addIssue({
                 code: z.ZodIssueCode.custom,
-                path: ['options'],
-                message: 'Unsupported parameters combination',
+                path: ['options', 'list'],
+                message:
+                    'Unsupported parameters combination (multiset + no repeat + order + count < set cardinality)',
             })
         }
 
         if (isMultiset && repetition) {
             // Unsupported
-            ctx.addIssue({
+            return ctx.addIssue({
                 code: z.ZodIssueCode.custom,
-                path: ['options'],
-                message: 'Unsupported parameters combination',
+                path: ['options', 'list'],
+                message:
+                    'Unsupported parameters combination (multiset + repeat)',
             })
         }
     })

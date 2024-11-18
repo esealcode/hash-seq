@@ -24,53 +24,64 @@
 
 import { sum, reduce, multiply } from 'ramda'
 import { TSet } from '../_domain/types.set.model'
-import { TPrng } from '../_domain/types.prng.model'
+import { TPrng } from '../../context.prng/_domain/types.prng.model'
 
 import { fact } from './math'
 
-export const countCombination = <T extends TSet<any>>(opts: {
+export const countCombination = <T extends TSet>(opts: {
     set: T
     repetition?: boolean
-    r: number
+    r: bigint
 }) => {
     const { set, repetition = false, r } = opts
 
     if (repetition) {
-        return (
-            fact(set.cardinality + r - 1) /
-            (fact(r) * fact(set.cardinality - 1))
-        )
+        const ret =
+            fact(BigInt(set.cardinality) + r - 1n) /
+            (fact(r) * fact(BigInt(set.cardinality) - 1n))
+        console.debug(`@combine with repeat`, {
+            set,
+            r,
+            ret,
+            fact: fact(BigInt(set.cardinality) - 1n),
+        })
+        return ret
     }
 
-    return fact(set.cardinality) / (fact(r) * fact(set.cardinality - r))
+    return (
+        fact(BigInt(set.cardinality)) /
+        (fact(r) * fact(BigInt(set.cardinality) - r))
+    )
 }
 
-export const countPermutation = <T extends TSet<any>>(opts: {
+export const countPermutation = <T extends TSet>(opts: {
     set: T
     repetition?: boolean
-    r: number
+    r: bigint
 }) => {
     const { set, repetition = false, r } = opts
 
     if (set.isMultiset) {
         return (
-            fact(sum(set.members.map((member) => member.multiplicity))) /
+            fact(
+                BigInt(sum(set.members.map((member) => member.multiplicity)))
+            ) /
             reduce(
-                multiply,
-                0,
-                set.members.map((member) => fact(member.multiplicity))
+                (acc, value) => acc * value,
+                1n,
+                set.members.map((member) => fact(BigInt(member.multiplicity)))
             )
         )
     }
 
     if (repetition) {
-        return set.cardinality ** r
+        return BigInt(set.cardinality) ** r
     }
 
-    return fact(set.cardinality) / fact(set.cardinality - r)
+    return fact(BigInt(set.cardinality)) / fact(BigInt(set.cardinality) - r)
 }
 
-export const select = <T extends TSet<any>>(opts: {
+export const select = <T extends TSet>(opts: {
     set: T
     repetition?: boolean
     prng: TPrng
@@ -80,14 +91,14 @@ export const select = <T extends TSet<any>>(opts: {
 
     if (repetition) {
         return [...Array(r)].map(
-            () => set.members[prng.randomInt(0, set.cardinality)].value
+            () => set.members[prng.random(0, set.cardinality)].value
         )
     }
 
     const members = [...set.members]
-    const out: T[] = []
+    const out: T['members'][number]['value'][] = []
     for (let i = 0; i < r; i++) {
-        const index = prng.randomInt(0, set.cardinality)
+        const index = prng.random(0, set.cardinality)
         out.push(...members.splice(index, 1).map((member) => member.value))
     }
 

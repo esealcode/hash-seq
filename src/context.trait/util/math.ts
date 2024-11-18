@@ -1,7 +1,7 @@
-export const fact = (n: number) => {
-    let ret = 1
+export const fact = (n: bigint) => {
+    let ret = 1n
 
-    for (let i = 2; i <= n; i++) {
+    for (let i = 2n; i <= n; i++) {
         ret *= i
     }
 

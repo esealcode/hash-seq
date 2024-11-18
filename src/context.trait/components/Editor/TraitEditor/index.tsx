@@ -2,6 +2,7 @@
 
 import React, { memo } from 'react'
 import { useWatch } from 'react-hook-form'
+import { useDebounce } from 'react-use'
 
 import {
     FormItem,
@@ -30,6 +31,16 @@ export const TraitEditor = memo<{
     const form = useConfigurationForm()
     const trait = useWatch({ control: form.control, name: `traits.${traitId}` })
 
+    // @warn: dirty hack because of https://github.com/react-hook-form/resolvers/issues/538#issuecomment-1504222680
+    useDebounce(
+        () => {
+            console.debug(`@trigger manual`)
+            form.trigger()
+        },
+        40,
+        [trait]
+    )
+
     return (
         <div className="flex flex-col flex-1 gap-4">
             <FormField
@@ -37,11 +48,17 @@ export const TraitEditor = memo<{
                 name={`traits.${traitId}.name`}
                 render={({ field }) => {
                     return (
-                        <Input
-                            className="w-full"
-                            placeholder="Name"
-                            {...field}
-                        />
+                        <FormItem className="flex flex-col">
+                            <div className="space-y-1 leading-none">
+                                <FormLabel>Name</FormLabel>
+                            </div>
+                            <Input
+                                className="w-full"
+                                placeholder="Name"
+                                {...field}
+                            />
+                            <FormMessage />
+                        </FormItem>
                     )
                 }}
             />
@@ -108,7 +125,6 @@ export const TraitEditor = memo<{
                                 <SelectItem value="range">Range</SelectItem>
                             </SelectContent>
                         </Select>
-                        <FormMessage />
                     </FormItem>
                 )}
             />
@@ -130,6 +146,7 @@ export const TraitEditor = memo<{
                                         {...field}
                                     />
                                 </FormControl>
+                                <FormMessage />
                             </FormItem>
                         )
                     }}
@@ -152,11 +169,18 @@ export const TraitEditor = memo<{
                                             <Input
                                                 className="w-full"
                                                 placeholder="Min."
+                                                min={0}
                                                 type="number"
                                                 {...field}
                                                 onChange={(e) => {
                                                     field.onChange(
-                                                        e.target.valueAsNumber
+                                                        isNaN(
+                                                            e.target
+                                                                .valueAsNumber
+                                                        )
+                                                            ? ''
+                                                            : e.target
+                                                                  .valueAsNumber
                                                     )
                                                 }}
                                             />
@@ -180,10 +204,17 @@ export const TraitEditor = memo<{
                                                 className="w-full"
                                                 placeholder="Max."
                                                 type="number"
+                                                min={0}
                                                 {...field}
                                                 onChange={(e) => {
                                                     field.onChange(
-                                                        e.target.valueAsNumber
+                                                        isNaN(
+                                                            e.target
+                                                                .valueAsNumber
+                                                        )
+                                                            ? ''
+                                                            : e.target
+                                                                  .valueAsNumber
                                                     )
                                                 }}
                                             />

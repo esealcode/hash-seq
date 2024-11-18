@@ -1,9 +1,9 @@
-export type TSetMember<T> = {
-    value: T
+export type TSetMember = {
+    value: string
     multiplicity: number
 }
-export type TSet<T> = {
-    members: TSetMember<T>[]
+export type TSet = {
+    members: TSetMember[]
     cardinality: number
     isMultiset: boolean
 }

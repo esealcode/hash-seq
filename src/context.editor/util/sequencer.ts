@@ -1,6 +1,6 @@
 import * as R from 'ramda'
 
-import { createPrng } from '../../common/util/prng'
+import { createPrng } from '../../context.prng/models/xorshiro256++'
 import { tokenizeText, isTokenListEqual, TToken } from './parse'
 
 type TSequenceTokenMatch = {
@@ -39,7 +39,7 @@ export const sequencer = (opts: TOptions) => {
 
             const ignore =
                 acceptedTokenLists[
-                    Number(prng.random(0, acceptedTokenLists.length - 1))
+                    Number(prng.random(0, acceptedTokenLists.length))
                 ]
 
             wrongTokenListsEncountered.add(ignore)
@@ -149,7 +149,6 @@ export const sequencer = (opts: TOptions) => {
         trust: sequence.length > 0 ? 1 - trust / sequence.length : 0,
         expect: expectTokenList,
         acceptedTokenLists,
-        state: prng.getState().toString(16),
         outSkipMap,
     }
 }

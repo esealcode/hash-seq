@@ -2,10 +2,8 @@ import { groupBy, map, sum } from 'ramda'
 
 import { TSet, TSetMember } from './types.set.model'
 
-export const createSetModel = <T extends string | number>(set: TSet<T>) => set
-export const createSetMemberModel = <T extends string | number>(
-    member: TSetMember<T>
-) => member
+export const createSetModel = (set: TSet) => set
+export const createSetMemberModel = (member: TSetMember) => member
 
 export const parseSet = (opts: { set: string }) => {
     const members = opts.set.split(/[\r\n]+/g)
