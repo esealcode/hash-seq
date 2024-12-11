@@ -7,7 +7,7 @@ const h1 = memo<React.ComponentProps<'h1'>>((props) => {
     return (
         <h1
             className={cn(
-                'scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl',
+                'scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl font-serif',
                 className
             )}
             {...restProps}
@@ -22,7 +22,7 @@ const h2 = memo<React.ComponentProps<'h2'>>((props) => {
     return (
         <h2
             className={cn(
-                'scroll-m-20 border-b pb-2 text-3xl font-semibold tracking-tight first:mt-0',
+                'scroll-m-20 border-b pb-2 text-3xl font-semibold tracking-tight first:mt-0 font-serif',
                 className
             )}
             {...restProps}
@@ -37,7 +37,7 @@ const h3 = memo<React.ComponentProps<'h3'>>((props) => {
     return (
         <h3
             className={cn(
-                'scroll-m-20 text-2xl font-semibold tracking-tight',
+                'scroll-m-20 text-2xl font-semibold tracking-tight font-serif',
                 className
             )}
             {...restProps}
@@ -52,7 +52,7 @@ const h4 = memo<React.ComponentProps<'h4'>>((props) => {
     return (
         <h4
             className={cn(
-                'scroll-m-20 text-xl font-semibold tracking-tight',
+                'scroll-m-20 text-xl font-semibold tracking-tight font-serif',
                 className
             )}
             {...restProps}
@@ -91,7 +91,7 @@ const inlineCode = memo<React.ComponentProps<'code'>>((props) => {
     return (
         <code
             className={cn(
-                'relative rounded bg-muted px-[0.3rem] py-[0.2rem] font-mono text-sm font-semibold',
+                'relative rounded bg-code px-[0.3rem] py-[0.2rem] font-mono text-sm font-semibold',
                 className
             )}
             {...restProps}
@@ -163,18 +163,21 @@ const text = memo<React.ComponentProps<'div'>>((props) => {
 
 text.displayName = 'Typo.text'
 
-export const Typo = Object.assign({
-    h1,
-    h2,
-    h3,
-    h4,
-    p,
-    blockquote,
-    inlineCode,
-    lead,
-    large,
-    small,
-    muted,
-    strong,
-    text,
-})
+export const Typo = Object.assign(
+    {},
+    {
+        h1,
+        h2,
+        h3,
+        h4,
+        p,
+        blockquote,
+        inlineCode,
+        lead,
+        large,
+        small,
+        muted,
+        strong,
+        text,
+    }
+)

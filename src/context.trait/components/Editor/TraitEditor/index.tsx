@@ -45,26 +45,6 @@ export const TraitEditor = memo<{
         <div className="flex flex-col flex-1 gap-4">
             <FormField
                 control={form.control}
-                name={`traits.${traitId}.name`}
-                render={({ field }) => {
-                    return (
-                        <FormItem className="flex flex-col">
-                            <div className="space-y-1 leading-none">
-                                <FormLabel>Name</FormLabel>
-                            </div>
-                            <Input
-                                className="w-full"
-                                placeholder="Name"
-                                {...field}
-                            />
-                            <FormMessage />
-                        </FormItem>
-                    )
-                }}
-            />
-
-            <FormField
-                control={form.control}
                 name={`traits.${traitId}.count`}
                 render={({ field }) => {
                     return (
@@ -88,46 +68,6 @@ export const TraitEditor = memo<{
                     )
                 }}
             />
-            <FormField
-                control={form.control}
-                name={`traits.${traitId}.options`}
-                render={({ field }) => (
-                    <FormItem>
-                        <FormLabel>Option type</FormLabel>
-                        <Select
-                            onValueChange={(type) => {
-                                switch (type) {
-                                    case 'range':
-                                        field.onChange({
-                                            type: 'range',
-                                            min: 0,
-                                            max: 0,
-                                        })
-                                        break
-
-                                    case 'list':
-                                    default:
-                                        field.onChange({
-                                            type: 'list',
-                                            list: '',
-                                        })
-                                }
-                            }}
-                            defaultValue={field.value.type}
-                        >
-                            <FormControl>
-                                <SelectTrigger>
-                                    <SelectValue placeholder="Select an option type" />
-                                </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                                <SelectItem value="list">List</SelectItem>
-                                <SelectItem value="range">Range</SelectItem>
-                            </SelectContent>
-                        </Select>
-                    </FormItem>
-                )}
-            />
 
             {trait.options.type === 'list' ? (
                 <FormField
@@ -142,7 +82,7 @@ export const TraitEditor = memo<{
                                 <FormControl>
                                     <Textarea
                                         className="w-full flex-1 min-h-[calc(200rem/16)] resize-none"
-                                        placeholder={`e.g: Options 0\nOption 1\n...\nOption N`}
+                                        placeholder={`Apple\nPear\nKiwi`}
                                         {...field}
                                     />
                                 </FormControl>
@@ -228,41 +168,43 @@ export const TraitEditor = memo<{
                 </>
             ) : null}
 
-            <FormField
-                control={form.control}
-                name={`traits.${traitId}.noRepeat`}
-                render={({ field }) => (
-                    <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-                        <FormControl>
-                            <Checkbox
-                                checked={field.value}
-                                onCheckedChange={field.onChange}
-                            />
-                        </FormControl>
-                        <div className="space-y-1 leading-none">
-                            <FormLabel>No repeat</FormLabel>
-                        </div>
-                    </FormItem>
-                )}
-            />
+            <div className="flex items-center gap-4 flex-wrap">
+                <FormField
+                    control={form.control}
+                    name={`traits.${traitId}.noRepeat`}
+                    render={({ field }) => (
+                        <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                            <FormControl>
+                                <Checkbox
+                                    checked={field.value}
+                                    onCheckedChange={field.onChange}
+                                />
+                            </FormControl>
+                            <div className="space-y-1 leading-none">
+                                <FormLabel>No repeat</FormLabel>
+                            </div>
+                        </FormItem>
+                    )}
+                />
 
-            <FormField
-                control={form.control}
-                name={`traits.${traitId}.strictOrder`}
-                render={({ field }) => (
-                    <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-                        <FormControl>
-                            <Checkbox
-                                checked={field.value}
-                                onCheckedChange={field.onChange}
-                            />
-                        </FormControl>
-                        <div className="space-y-1 leading-none">
-                            <FormLabel>Strict order</FormLabel>
-                        </div>
-                    </FormItem>
-                )}
-            />
+                <FormField
+                    control={form.control}
+                    name={`traits.${traitId}.strictOrder`}
+                    render={({ field }) => (
+                        <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                            <FormControl>
+                                <Checkbox
+                                    checked={field.value}
+                                    onCheckedChange={field.onChange}
+                                />
+                            </FormControl>
+                            <div className="space-y-1 leading-none">
+                                <FormLabel>Strict order</FormLabel>
+                            </div>
+                        </FormItem>
+                    )}
+                />
+            </div>
         </div>
     )
 })

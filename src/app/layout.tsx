@@ -1,8 +1,14 @@
 import type { Metadata } from 'next'
-import { Inter } from 'next/font/google'
+import { Inter, Newsreader } from 'next/font/google'
 import './globals.css'
+import { cn } from '@/lib/utils'
 
 const inter = Inter({ subsets: ['latin'] })
+const newsreader = Newsreader({
+    subsets: ['latin'],
+    weight: ['400', '700'],
+    variable: '--font-newsreader',
+})
 
 export const metadata: Metadata = {
     title: 'Create Next App',
@@ -16,7 +22,9 @@ export default function RootLayout({
 }) {
     return (
         <html lang="en">
-            <body className={inter.className}>{children}</body>
+            <body className={cn(inter.className, newsreader.variable)}>
+                {children}
+            </body>
         </html>
     )
 }

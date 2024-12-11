@@ -27,14 +27,15 @@ export const TraitCard = memo<{
     return (
         <Card className="flex flex-col w-[calc(340rem/16)] shrink-0 grow-0">
             <CardHeader>
-                <div className="flex gap-2">
-                    <div className="flex flex-col space-y-1.5">
+                <div className="flex gap-4">
+                    <div className="flex flex-col flex-1 space-y-1.5">
                         <CardTitle>
                             {trait.name.length > 0 ? trait.name : 'Untitled'}
                         </CardTitle>
                         <CardDescription>
-                            A required trait that will need to be embedded in
-                            the entity.
+                            {trait.description.length > 0
+                                ? trait.description
+                                : 'No description'}
                         </CardDescription>
                     </div>
                     <div>

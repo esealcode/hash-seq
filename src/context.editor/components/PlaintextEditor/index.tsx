@@ -19,7 +19,6 @@ export const PlaintextEditor = memo<{}>((props) => {
 
     const {
         acceptedTokenLists,
-        state,
         sequence,
         expect,
         strength,
@@ -52,7 +51,7 @@ export const PlaintextEditor = memo<{}>((props) => {
               ).toFixed(2)
             : 0
 
-    const textareaRef = useRef<HTMLTextAreaElement>(null)
+    const textareaRef = useRef<HTMLTextAreaElement | null>(null)
 
     console.debug(`@seq`, { outSkipMap })
     useEffect(() => {
@@ -119,9 +118,6 @@ export const PlaintextEditor = memo<{}>((props) => {
                         {hasReachedTarget ? '100' : progress}% (trust:{' '}
                         {(trust * 100).toFixed(2)}%)
                     </Typo.strong>
-                </Typo.text>
-                <Typo.text>
-                    <Typo.small>0x{state}</Typo.small>
                 </Typo.text>
             </div>
         </div>

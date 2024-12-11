@@ -1,101 +1,243 @@
-import React, { memo } from 'react'
-import { map } from 'ramda'
+import React, { memo, ReactText } from 'react'
+import invariant from 'invariant'
 
-type TReactComponent = React.ComponentType<any>
+export type TSlotScope = React.PropsWithChildren['children']
 
-type TSlot<T extends TReactComponent> = React.NamedExoticComponent<
-    React.ComponentProps<T>
-> & { Component: T }
+type TSlot<
+    C extends React.ComponentType<any>,
+    D extends Record<string, any> | undefined
+> = React.NamedExoticComponent<React.ComponentProps<C> & { $name?: string }> & {
+    Slot: React.NamedExoticComponent<
+        TSlotInternalProps<C, D> &
+            Omit<React.ComponentProps<C>, keyof TSlotInternalProps<C, D>>
+    > & {
+        If: React.NamedExoticComponent<TSlotIfProps>
+    }
 
-type TSlotMap<T extends Record<string, TReactComponent>> = {
-    [key in keyof T]: TSlot<T[key]>
+    Receiver: React.NamedExoticComponent<{
+        $name?: string
+        children: (
+            props: D
+        ) => React.ReactElement<
+            unknown,
+            string | React.JSXElementConstructor<any>
+        >
+    }>
 }
 
-type TTemplate<T extends TSlot<TReactComponent>> = {
-    props: React.ComponentProps<T['Component']> | null
-    Component: T['Component']
-}
+const useTemplates = <
+    C extends React.ComponentType<any>,
+    D extends Record<string, any> | undefined
+>(opts: {
+    $scope: React.PropsWithChildren['children']
+    $data: D | undefined
+    $name?: string
+    Receiver: TSlot<C, D>['Receiver']
+    type: C
+}) => {
+    const templates = React.Children.toArray(opts.$scope)
+        .filter((child) => React.isValidElement(child))
+        .filter((child) => {
+            const isType =
+                child.type === opts.type || child.type === opts.Receiver
 
-type TTemplateMap<T extends TSlotMap<Record<string, TReactComponent>>> = {
-    [key in keyof T]: TTemplate<T[key]>
-}
+            const isNameMatching =
+                (!opts.$name && !child.props.$name) ||
+                opts.$name === child.props.$name
 
-export const createSlots = <T extends Record<string, TReactComponent>>(
-    opts: T
-) => {
-    const templates = map((Component) => {
-        const template = memo<React.ComponentProps<typeof Component>>(
-            (props) => {
-                return null
+            return isType && isNameMatching
+        })
+        .map((template) => {
+            if (template.type !== opts.Receiver) {
+                return template
             }
-        )
 
-        template.displayName = `template.${
-            Component.displayName ?? 'anonymous'
-        }`
+            invariant(
+                opts.$data !== undefined,
+                'Cannot render consumer template, data is undefined'
+            )
+            const render = template.props.children as React.ComponentProps<
+                TSlot<C, D>['Receiver']
+            >['children']
 
-        return Object.assign(template, { Component })
-    }, opts) as unknown as TSlotMap<T>
+            const children = render(opts.$data)
+
+            invariant(
+                React.Children.toArray(children).every(
+                    (child) =>
+                        React.isValidElement(child) && child.type === opts.type
+                ),
+                'Slot receiver render function did not return expected slot type'
+            )
+            return children
+        })
 
     return templates
 }
 
-export const useSlots = <
-    T extends TSlotMap<Record<string, TReactComponent>>,
-    P extends React.PropsWithChildren
->(
-    opts: {
-        slots: T
-    } & Omit<P, 'slots'>
-) => {
-    const children = React.Children.toArray(opts.children)
-    const templates: TTemplateMap<T> = map((slot) => {
-        const child = children
-            .filter((child) => typeof child === 'object' && 'type' in child)
-            .find((child) => child.type === slot)
+type TSlotInternalDataProps<D extends Record<string, any> | undefined> =
+    D extends undefined
+        ? { $data?: never }
+        : {
+              $data: D
+          }
 
-        return { props: child?.props ?? null, Component: slot.Component }
-    }, opts.slots)
-
-    return { templates }
-}
-
-type TSlotOwnProps<C extends TReactComponent> = {
-    template: TTemplate<TSlot<C>>
-    fallback?: boolean
-    merge?: (
-        props: NonNullable<TTemplate<TSlot<C>>['props']>
-    ) => Partial<NonNullable<TTemplate<TSlot<C>>['props']>>
-}
-
-type TSlotTemplateProps<
-    C extends TReactComponent,
-    T extends TTemplate<TSlot<C>>
-> = Partial<Omit<NonNullable<T['props']>, keyof TSlotOwnProps<C>>>
-
-export const Slot = <
+type TSlotInternalProps<
     C extends React.ComponentType<any>,
-    P extends React.ComponentProps<C>,
-    T extends TTemplate<TSlot<React.ComponentType<P>>>
+    D extends Record<string, any> | undefined
+> = {
+    $scope: React.PropsWithChildren['children']
+    $multiple?: boolean
+    $name?: string
+    $merge?: (
+        props: React.ComponentProps<C>
+    ) => Partial<React.ComponentProps<C>>
+} & TSlotInternalDataProps<D>
+
+type TSlotIfProps = React.PropsWithChildren<{
+    $name?: string
+    scope: React.PropsWithChildren['children']
+    requires?: React.ComponentType<any>[]
+    exists?: boolean
+}>
+
+const createSlotComponent = <
+    C extends React.ComponentType<any>,
+    D extends Record<string, any> | undefined
+>(opts: {
+    Component: C
+    Receiver: TSlot<C, D>['Receiver']
+    Template: React.ComponentType<React.ComponentProps<C>>
+}) => {
+    const { Component, Receiver, Template } = opts
+
+    const Slot = memo<
+        React.PropsWithChildren<
+            TSlotInternalProps<C, D> &
+                Omit<React.ComponentProps<C>, keyof TSlotInternalProps<C, D>>
+        >
+    >((props) => {
+        const {
+            $scope,
+            $name,
+            $multiple = false,
+            $merge,
+            $data,
+            ...slotsProps
+        } = props
+
+        const templates = useTemplates<typeof Template, typeof $data>({
+            $scope,
+            $name,
+            $data,
+            type: Template,
+            Receiver,
+        })
+
+        console.debug(`@templates`, { templates })
+        invariant(
+            !$multiple && templates.length <= 1,
+            'Found multiple templates but slots is single template.'
+        )
+
+        return templates.map((template, key) => {
+            const { $name, ...props } = template.props
+
+            const mergeProps = $merge
+                ? $merge(template.props)
+                : ({} as Partial<React.ComponentProps<typeof Component>>)
+
+            return (
+                <Component
+                    key={template.key ?? key}
+                    // @ts-ignore @todo: investigate
+                    ref={template.ref}
+                    {...slotsProps}
+                    {...props}
+                    {...mergeProps}
+                />
+            )
+        })
+    })
+
+    Slot.displayName = `slot.${Component.displayName ?? 'anonymous'}`
+
+    const If = memo<TSlotIfProps>((props) => {
+        const { scope, exists, requires = [], children } = props
+
+        const templates = React.Children.toArray(scope)
+            .filter((child) => React.isValidElement(child))
+            .filter(
+                (child) => child.type === Component || child.type === Receiver
+            )
+
+        const hasAnyTemplate = templates.length > 0
+        const hasExistsRequirement = exists !== undefined
+        const failedExistsRequirement =
+            hasExistsRequirement &&
+            ((exists && !hasAnyTemplate) || (!exists && hasAnyTemplate))
+
+        if (failedExistsRequirement) {
+            return null
+        }
+
+        const hasRequiredTemplates =
+            requires.length > 0 &&
+            requires.every((template) =>
+                React.Children.toArray(scope).some(
+                    (child) =>
+                        React.isValidElement(child) && child.type === template
+                )
+            )
+
+        if (!hasRequiredTemplates) {
+            return null
+        }
+
+        return children
+    })
+
+    If.displayName = `${Slot.displayName}.If`
+
+    return Object.assign(Slot, { If })
+}
+
+export const createSlot = <
+    C extends React.ComponentType<any>,
+    D extends Record<string, any> | undefined = undefined
 >(
-    props: TSlotOwnProps<React.ComponentType<P>> &
-        TSlotTemplateProps<React.ComponentType<P>, T>
+    Component: C
 ) => {
-    const { template, merge, ...restProps } = props
-
-    if (template.props === null) {
+    const Template = memo<React.ComponentProps<typeof Component>>((props) => {
         return null
-    }
+    })
 
-    const mergeProps = merge
-        ? merge(template.props)
-        : ({} as Partial<T['props']>)
+    Template.displayName = `template.${Component.displayName ?? 'anonymous'}`
 
-    return (
-        <template.Component
-            {...restProps}
-            {...template.props}
-            {...mergeProps}
-        />
-    )
+    const Receiver: TSlot<C, D>['Receiver'] = memo((props) => {
+        return null
+    })
+
+    Receiver.displayName = `slot.consumer.${
+        Component.displayName ?? 'anonymous'
+    }`
+
+    const Slot = createSlotComponent<C, D>({
+        Component,
+        Template,
+        Receiver,
+    })
+
+    const slot: TSlot<C, D> = Object.assign(Template, {
+        Slot,
+        Receiver,
+    })
+
+    return slot
+}
+
+export const createDynamicSlot = <
+    D extends Record<string, any> = Record<string, never>
+>() => {
+    return null
 }

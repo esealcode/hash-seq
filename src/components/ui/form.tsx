@@ -2,6 +2,9 @@
 
 import * as React from 'react'
 import * as LabelPrimitive from '@radix-ui/react-label'
+import { z } from 'zod'
+import { zodResolver } from '@hookform/resolvers/zod'
+
 import { Slot } from '@radix-ui/react-slot'
 import {
     Controller,
@@ -9,7 +12,9 @@ import {
     FieldPath,
     FieldValues,
     FormProvider,
+    UseFormProps,
     useFormContext,
+    useForm,
 } from 'react-hook-form'
 
 import { cn } from '@/lib/utils'
@@ -167,8 +172,19 @@ const FormMessage = React.forwardRef<
 })
 FormMessage.displayName = 'FormMessage'
 
+const useZodForm = <S extends z.ZodSchema>(
+    opts: Omit<UseFormProps<z.infer<S>>, 'resolver'> & { schema: S }
+) => {
+    const { schema, ...params } = opts
+    return useForm<z.infer<S>>({
+        ...params,
+        resolver: zodResolver(schema),
+    })
+}
+
 export {
     useFormField,
+    useZodForm as useForm,
     Form,
     FormItem,
     FormLabel,

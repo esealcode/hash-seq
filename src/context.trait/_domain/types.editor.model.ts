@@ -20,6 +20,7 @@ export type TTraitOptionVariantType = TTraitOptionVariant['type']
 export const traitSchema = z
     .object({
         name: z.string(),
+        description: z.string(),
         count: z.number(),
         noRepeat: z.boolean(),
         strictOrder: z.boolean(),

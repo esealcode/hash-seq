@@ -5,7 +5,7 @@ import { ConfigurationEditor } from '@/context.trait/components/Editor'
 
 export default function Traits() {
     return (
-        <div className="flex flex-col p-8">
+        <div className="flex flex-col h-full">
             <ConfigurationEditor />
         </div>
     )

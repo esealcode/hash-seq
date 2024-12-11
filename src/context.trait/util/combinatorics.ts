@@ -89,6 +89,7 @@ export const select = <T extends TSet>(opts: {
 }) => {
     const { set, repetition = false, r, prng } = opts
 
+    console.debug(`@select`, { opts })
     if (repetition) {
         return [...Array(r)].map(
             () => set.members[prng.random(0, set.cardinality)].value
@@ -98,7 +99,7 @@ export const select = <T extends TSet>(opts: {
     const members = [...set.members]
     const out: T['members'][number]['value'][] = []
     for (let i = 0; i < r; i++) {
-        const index = prng.random(0, set.cardinality)
+        const index = prng.random(0, members.length)
         out.push(...members.splice(index, 1).map((member) => member.value))
     }
 
