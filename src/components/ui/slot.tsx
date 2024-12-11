@@ -1,4 +1,4 @@
-import React, { memo, ReactText } from 'react'
+import React, { memo } from 'react';
 import invariant from 'invariant'
 
 export type TSlotScope = React.PropsWithChildren['children']
