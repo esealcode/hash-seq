@@ -116,8 +116,7 @@ const Root = memo<
                         Binding
                     </slots.Title.Slot>
                     <slots.Description.Slot $scope={children}>
-                        Where you state the rules that will be bound to your
-                        signature
+                        What rules does this signature will apply to the entity?
                     </slots.Description.Slot>
                     <FormContent
                         onSubmit={onSubmit}

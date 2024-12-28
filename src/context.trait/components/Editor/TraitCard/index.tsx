@@ -40,7 +40,7 @@ export const TraitCard = memo<{
                     </div>
                     <div>
                         <SettingsDropdown traitId={traitId}>
-                            <SettingsDropdown.Trigger>
+                            <SettingsDropdown.Trigger asChild>
                                 <Button variant="outline" size="icon-sm">
                                     <Ellipsis className="w-4 h-4" />
                                 </Button>

@@ -40,7 +40,7 @@ export const Signature = memo((props) => {
     }, [binding, traits, errors])
 
     return (
-        <div className="flex flex-col gap-6 overflow-auto mt-6">
+        <div className="flex flex-col gap-8 overflow-auto mt-6">
             <Probability />
             {generation.map((gen, key) => {
                 return (
@@ -49,7 +49,7 @@ export const Signature = memo((props) => {
                             <Typo.strong>{gen.trait.name}</Typo.strong>
                             <Typo.muted>{gen.trait.description}</Typo.muted>
                         </div>
-                        <div className="flex flex-col max-h-[40rem] overflow-y-auto gap-2">
+                        <div className="flex flex-col max-h-[40rem] overflow-y-auto pr-2 gap-2">
                             {gen.sel.map((sel, key) => {
                                 const id = `${gen.trait.name}${key}`
                                 return (

@@ -50,7 +50,8 @@ export const traitSchema = z
             return ctx.addIssue({
                 code: z.ZodIssueCode.custom,
                 path: ['count'],
-                message: 'Too many selection (r > n)',
+                message:
+                    'Cannot select more that available without allowing repetitions.',
             })
         }
 
@@ -60,7 +61,7 @@ export const traitSchema = z
                 code: z.ZodIssueCode.custom,
                 path: ['options', 'list'],
                 message:
-                    'Unsupported parameters combination (multiset + no repeat + no order)',
+                    'Unsupported combination (multiset + no repeat + no order)',
             })
         }
 
@@ -75,7 +76,7 @@ export const traitSchema = z
                 code: z.ZodIssueCode.custom,
                 path: ['options', 'list'],
                 message:
-                    'Unsupported parameters combination (multiset + no repeat + order + count < set cardinality)',
+                    'Unsupported combination (multiset + no repeat + order + count < set cardinality)',
             })
         }
 
@@ -85,7 +86,7 @@ export const traitSchema = z
                 code: z.ZodIssueCode.custom,
                 path: ['options', 'list'],
                 message:
-                    'Unsupported parameters combination (multiset + repeat)',
+                    'Cannot allow repetition along with an options list that already contains duplicates.',
             })
         }
     })

@@ -16,7 +16,6 @@ import {
 import { Form } from '@/components/ui/form'
 import { ContractEditor } from './ContractEditor'
 import { PlaintextEditor } from './PlaintextEditor'
-import { Configuration } from './Configuration'
 
 const CONTRACT_EXAMPLE = `Owner: ...
 Copyrights: ...`

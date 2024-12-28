@@ -1,4 +1,4 @@
-import React, { memo } from 'react';
+import React, { memo } from 'react'
 import invariant from 'invariant'
 
 export type TSlotScope = React.PropsWithChildren['children']
@@ -38,12 +38,13 @@ const useTemplates = <
     const templates = React.Children.toArray(opts.$scope)
         .filter((child) => React.isValidElement(child))
         .filter((child) => {
+            const props = child.props as Record<string, any> | null
+
             const isType =
                 child.type === opts.type || child.type === opts.Receiver
 
             const isNameMatching =
-                (!opts.$name && !child.props.$name) ||
-                opts.$name === child.props.$name
+                (!opts.$name && !props?.$name) || opts.$name === props?.$name
 
             return isType && isNameMatching
         })
@@ -56,9 +57,22 @@ const useTemplates = <
                 opts.$data !== undefined,
                 'Cannot render consumer template, data is undefined'
             )
-            const render = template.props.children as React.ComponentProps<
+
+            const templateProps = template.props as Record<string, any> | null
+
+            invariant(
+                templateProps !== null,
+                'Slot Receiver did not receive any children'
+            )
+
+            const render = templateProps.children as React.ComponentProps<
                 TSlot<C, D>['Receiver']
             >['children']
+
+            invariant(
+                typeof render === 'function',
+                'Slot Receiver did not receive render function children'
+            )
 
             const children = render(opts.$data)
 
@@ -141,10 +155,13 @@ const createSlotComponent = <
         )
 
         return templates.map((template, key) => {
-            const { $name, ...props } = template.props
+            const templateProps = template.props as React.ComponentProps<
+                typeof Component
+            >
+            const { $name, ...props } = templateProps
 
             const mergeProps = $merge
-                ? $merge(template.props)
+                ? $merge(templateProps)
                 : ({} as Partial<React.ComponentProps<typeof Component>>)
 
             return (

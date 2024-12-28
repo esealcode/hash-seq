@@ -6,7 +6,7 @@ import { Plus } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
 import { useDialogController } from '@/components/ui/dialog'
-import { CreateTraitModal } from '../CreateTraitModal'
+import { CreateTraitSheet } from '../CreateTraitSheet'
 import { useConfigurationForm } from '@/context.trait/hooks/useConfigurationForm'
 
 export const AddTraitButton = memo((props) => {
@@ -14,7 +14,7 @@ export const AddTraitButton = memo((props) => {
     const form = useConfigurationForm()
 
     return (
-        <CreateTraitModal
+        <CreateTraitSheet
             {...dialogController}
             onSubmit={(data) => {
                 const id = nanoid()
@@ -52,19 +52,19 @@ export const AddTraitButton = memo((props) => {
                 dialogController.onOpenChange(false)
             }}
         >
-            <CreateTraitModal.slots.Trigger>
+            <CreateTraitSheet.slots.Trigger>
                 <Button variant="default">
                     <Plus className="mr-2 h-4 w-4" /> Add trait
                 </Button>
-            </CreateTraitModal.slots.Trigger>
-            <CreateTraitModal.slots.Title>
+            </CreateTraitSheet.slots.Trigger>
+            <CreateTraitSheet.slots.Title>
                 Add trait
-            </CreateTraitModal.slots.Title>
-            <CreateTraitModal.slots.Description />
-            <CreateTraitModal.slots.SubmitButton>
+            </CreateTraitSheet.slots.Title>
+            <CreateTraitSheet.slots.Description />
+            <CreateTraitSheet.slots.SubmitButton>
                 Create
-            </CreateTraitModal.slots.SubmitButton>
-        </CreateTraitModal>
+            </CreateTraitSheet.slots.SubmitButton>
+        </CreateTraitSheet>
     )
 })
 AddTraitButton.displayName = 'AddTraitButton'

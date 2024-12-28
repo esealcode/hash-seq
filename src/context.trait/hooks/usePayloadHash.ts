@@ -51,6 +51,11 @@ export const usePayloadHash = (opts: {
 
     useDebounce(
         async () => {
+            const validation = configurationSchema.safeParse(config)
+            if (!validation.success) {
+                return
+            }
+
             const compressed = await compressStringToGzip(
                 JSON.stringify(config)
             )

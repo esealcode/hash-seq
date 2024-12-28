@@ -12,7 +12,7 @@ import {
     useDropdownController,
     TDropdownController,
 } from '@/components/ui/dropdown-menu'
-import { UpdateTraitModal } from '../../UpdateTraitModal'
+import { UpdateTraitSheet } from '../../UpdateTraitSheet'
 import { useConfigurationForm } from '@/context.trait/hooks/useConfigurationForm'
 
 const RenameDropdownItem = memo<{
@@ -24,7 +24,7 @@ const RenameDropdownItem = memo<{
     const trait = useWatch({ control: form.control, name: `traits.${traitId}` })
 
     return (
-        <UpdateTraitModal
+        <UpdateTraitSheet
             data={{ name: trait.name, description: trait.description }}
             onOpenChange={controller.onOpenChange}
             onSubmit={(data) => {
@@ -36,19 +36,19 @@ const RenameDropdownItem = memo<{
                 })
             }}
         >
-            <UpdateTraitModal.slots.Trigger asChild>
+            <UpdateTraitSheet.slots.Trigger asChild>
                 <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
                     Rename
                 </DropdownMenuItem>
-            </UpdateTraitModal.slots.Trigger>
-            <UpdateTraitModal.slots.Title>
+            </UpdateTraitSheet.slots.Trigger>
+            <UpdateTraitSheet.slots.Title>
                 Rename trait
-            </UpdateTraitModal.slots.Title>
-            <UpdateTraitModal.slots.Description />
-            <UpdateTraitModal.slots.SubmitButton>
+            </UpdateTraitSheet.slots.Title>
+            <UpdateTraitSheet.slots.Description />
+            <UpdateTraitSheet.slots.SubmitButton>
                 Update
-            </UpdateTraitModal.slots.SubmitButton>
-        </UpdateTraitModal>
+            </UpdateTraitSheet.slots.SubmitButton>
+        </UpdateTraitSheet>
     )
 })
 
