@@ -165,6 +165,7 @@ const createSlotComponent = <
                 : ({} as Partial<React.ComponentProps<typeof Component>>)
 
             return (
+                // @ts-expect-error @todo: fix type issue
                 <Component
                     key={template.key ?? key}
                     // @ts-ignore @todo: investigate
