@@ -3,44 +3,32 @@
 import React, { memo } from 'react'
 import { z } from 'zod'
 
-import { createSlot, TSlotScope } from '@/components/ui/slot'
 import {
-    useForm,
     Form,
+    FormControl,
     FormField,
     FormItem,
     FormLabel,
     FormMessage,
-    FormControl,
+    useForm,
 } from '@/components/ui/form'
-import { Button } from '@/components/ui/button'
-import {
-    Sheet,
-    SheetClose,
-    SheetContent,
-    SheetDescription,
-    SheetFooter,
-    SheetHeader,
-    SheetTitle,
-    SheetTrigger,
-} from '@/components/ui/sheet'
 import { Input } from '@/components/ui/input'
-import { Textarea } from '@/components/ui/textarea'
 import {
     Select,
-    SelectTrigger,
-    SelectItem,
-    SelectValue,
     SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
 } from '@/components/ui/select'
-import { Label } from '@/components/ui/label'
-
-const slots = {
-    Trigger: createSlot(SheetTrigger),
-    Title: createSlot(SheetTitle),
-    Description: createSlot(SheetDescription),
-    SubmitButton: createSlot(Button),
-}
+import {
+    Sheet,
+    SheetContent,
+    SheetFooter,
+    SheetHeader,
+} from '@/components/ui/sheet'
+import { TSlotScope } from '@/components/ui/slot'
+import { Textarea } from '@/components/ui/textarea'
+import { slots } from './slots'
 
 const formSchema = z.object({
     name: z.string().min(1, 'Must not be empty'),
@@ -173,7 +161,7 @@ const Root = memo<
             <SheetContent side="left" className="sm:max-w-[425px]">
                 <SheetHeader>
                     <slots.Title.Slot $scope={children}>
-                        Creat trait
+                        Creat traite
                     </slots.Title.Slot>
                     <slots.Description.Slot $scope={children}>
                         Tell a bit more about what the trait should be in the

@@ -148,7 +148,13 @@ const createSlotComponent = <
             Receiver,
         })
 
-        console.debug(`@templates`, { templates })
+        console.debug(`@templates`, {
+            $scope,
+            Component,
+            Receiver,
+            Template,
+            templates,
+        })
         invariant(
             !$multiple && templates.length <= 1,
             'Found multiple templates but slots is single template.'

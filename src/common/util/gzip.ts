@@ -29,9 +29,7 @@ export async function compressStringToGzip(inputString: string) {
     return compressedData
 }
 
-export async function decompressGzipToString(
-    compressedData: Uint8Array<ArrayBuffer>
-) {
+export async function decompressGzipToString(compressedData: Uint8Array) {
     const decompressionStream = new DecompressionStream('gzip')
     const compressedStream = new ReadableStream({
         start(controller) {
