@@ -1,6 +1,6 @@
 import * as R from 'ramda'
 
-import { createPrng } from '../../context.prng/models/xorshiro256++'
+import { createPrng } from '../../context.prng/models/sha256-counter'
 import { tokenizeText, isTokenListEqual, TToken } from './parse'
 
 type TSequenceTokenMatch = {

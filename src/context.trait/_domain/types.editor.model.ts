@@ -55,46 +55,35 @@ export const traitSchema = z
             })
         }
 
-        if (isMultiset && !repetition && !order) {
-            // Unsupported
+        if (isMultiset) {
             return ctx.addIssue({
                 code: z.ZodIssueCode.custom,
                 path: ['options', 'list'],
-                message:
-                    'Unsupported combination (multiset + no repeat + no order)',
-            })
-        }
-
-        if (
-            isMultiset &&
-            !repetition &&
-            order &&
-            trait.count < set.cardinality
-        ) {
-            // Unsupported
-            return ctx.addIssue({
-                code: z.ZodIssueCode.custom,
-                path: ['options', 'list'],
-                message:
-                    'Unsupported combination (multiset + no repeat + order + count < set cardinality)',
-            })
-        }
-
-        if (isMultiset && repetition) {
-            // Unsupported
-            return ctx.addIssue({
-                code: z.ZodIssueCode.custom,
-                path: ['options', 'list'],
-                message:
-                    'Cannot allow repetition along with an options list that already contains duplicates.',
+                message: 'Invalid set: options list must contain unique members.',
             })
         }
     })
 
 export type TTrait = z.infer<typeof traitSchema>
 
+/** Named list sets only; numeric ranges use `{min..max}[count]` in entity text */
+export const setCardSchema = z.object({
+    /** Referenced as `{thisName}[count]` */
+    name: z.string().min(1),
+    options: z.object({
+        type: z.literal('list'),
+        list: z.string(),
+    }),
+})
+
+export type TSetCard = z.infer<typeof setCardSchema>
+
 export const configurationSchema = z.object({
+    /** Rule text; PRNG seed combines this with raw `entityDescription` (see generator) */
     binding: z.string(),
+    setCards: z.record(z.string(), setCardSchema),
+    /** Free text: `{setName}[count]!>` for named sets, `{min..max}[count]!>` for numeric ranges; `#` line comments ignore refs. Included in the binding seed as written (no set resolution) */
+    entityDescription: z.string(),
     traits: z.record(z.string(), traitSchema),
 })
 export type TConfiguration = z.infer<typeof configurationSchema>
