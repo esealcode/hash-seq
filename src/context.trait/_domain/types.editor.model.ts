@@ -1,5 +1,6 @@
 import { z } from 'zod'
 
+import { setListHasDuplicateMembers } from './types.set.util'
 import { getTraitSet } from './types.editor.util'
 
 export const traitOptionVariantSchema = z.discriminatedUnion('type', [
@@ -67,14 +68,25 @@ export const traitSchema = z
 export type TTrait = z.infer<typeof traitSchema>
 
 /** Named list sets only; numeric ranges use `{min..max}[count]` in entity text */
-export const setCardSchema = z.object({
-    /** Referenced as `{thisName}[count]` */
-    name: z.string().min(1),
-    options: z.object({
-        type: z.literal('list'),
-        list: z.string(),
-    }),
-})
+export const setCardSchema = z
+    .object({
+        /** Referenced as `{thisName}[count]` */
+        name: z.string().min(1),
+        options: z.object({
+            type: z.literal('list'),
+            list: z.string(),
+        }),
+    })
+    .superRefine((card, ctx) => {
+        if (setListHasDuplicateMembers(card.options.list)) {
+            ctx.addIssue({
+                code: z.ZodIssueCode.custom,
+                path: ['options', 'list'],
+                message:
+                    'Duplicate members: each line must be unique.',
+            })
+        }
+    })
 
 export type TSetCard = z.infer<typeof setCardSchema>
 

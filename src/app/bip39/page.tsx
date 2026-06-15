@@ -77,7 +77,7 @@ export default function Bip39WordCheckPage() {
     )
 
     return (
-        <div className="mx-auto flex max-w-3xl flex-col gap-4 p-8">
+        <div className="mx-auto flex flex-col gap-4 p-8">
             <div>
                 <h1 className="font-serif text-2xl font-semibold tracking-tight">
                     BIP-39 word check

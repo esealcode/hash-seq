@@ -27,3 +27,7 @@ export const parseSet = (opts: { set: string }) => {
         isMultiset,
     })
 }
+
+/** True when the same member text appears more than once (same rules as {@link parseSet}). */
+export const setListHasDuplicateMembers = (list: string): boolean =>
+    parseSet({ set: list }).isMultiset

@@ -19,6 +19,10 @@ export const EntityStrength = memo((props) => {
             return 0n
         }
         try {
+            console.debug(`@getTraitProbability`, { traits })
+            console.debug(`@getTraitProbability`, {
+                values: Object.values(traits).map((trait) => getTraitProbability(trait))
+            })
             return reduce(
                 (acc, value) => acc * value,
                 1n,
@@ -37,7 +41,6 @@ export const EntityStrength = memo((props) => {
             className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm"
             title="A value ≥ 1 means the configuration is safe enough; higher is stronger."
         >
-            <span className="text-muted-foreground shrink-0">Strength</span>
             <div className="flex items-center gap-1.5 min-w-0">
                 {safeEnough ? (
                     <ShieldCheck className="h-4 w-4 shrink-0 stroke-[#37ac64]" />

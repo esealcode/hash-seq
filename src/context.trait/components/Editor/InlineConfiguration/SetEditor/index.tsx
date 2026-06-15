@@ -40,7 +40,7 @@ export const SetEditor = memo<{
                 render={({ field }) => (
                     <FormItem className="flex flex-col">
                         <div className="space-y-1 leading-none">
-                            <FormLabel>Members</FormLabel>
+                            <FormLabel>Attributes</FormLabel>
                         </div>
                         <FormControl>
                             <Textarea

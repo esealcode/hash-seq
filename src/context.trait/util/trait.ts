@@ -13,6 +13,12 @@ export const getTraitProbability = (trait: TTrait) => {
         })
     }
 
+    console.debug("countCombination", {
+        set: getTraitSet(trait),
+        r: BigInt(trait.count),
+        repetition: !trait.noRepeat,
+    })
+    
     return countCombination({
         set: getTraitSet(trait),
         r: BigInt(trait.count),

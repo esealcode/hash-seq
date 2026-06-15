@@ -41,7 +41,6 @@ export const SetCard = memo<{
                     name={`setCards.${setId}.name`}
                     render={({ field }) => (
                         <FormItem className="space-y-1.5">
-                            <FormLabel className="sr-only">Set name</FormLabel>
                             <div className="flex items-center gap-2">
                                 <FormControl className="flex-1 min-w-0">
                                     <Input
@@ -66,13 +65,6 @@ export const SetCard = memo<{
                         </FormItem>
                     )}
                 />
-                <CardDescription>
-                    Use{' '}
-                    <span className="font-mono text-foreground/80">
-                        {card?.name?.trim() || '…'}
-                    </span>{' '}
-                    in entity lines
-                </CardDescription>
             </CardHeader>
             <CardContent className="flex flex-col flex-1">
                 <SetEditor setId={setId} />

@@ -76,10 +76,21 @@ export const EntityDescriptionField = memo((props) => {
 
     const traits = useWatch({ control: form.control, name: 'traits' })
     const binding = useWatch({ control: form.control, name: 'binding' })
+    const setCards = useWatch({ control: form.control, name: 'setCards' })
     const entityDescription = useWatch({
         control: form.control,
         name: 'entityDescription',
     })
+
+    const availableSets = useMemo(() => {
+        if (!setCards) {
+            return []
+        }
+        return Object.entries(setCards).map(([setId, card]) => ({
+            setId,
+            name: card.name.trim(),
+        }))
+    }, [setCards])
 
     const generation = useMemo(() => {
         if (Object.values(errors).length > 0) {
@@ -106,21 +117,38 @@ export const EntityDescriptionField = memo((props) => {
             render={({ field }) => (
                 <FormItem>
                     <div className="flex flex-wrap items-start justify-between gap-x-4 gap-y-2">
-                        <FormLabel className="pt-0.5">Entity description</FormLabel>
+                        <Typo.h4>Sets resolution</Typo.h4>
                         <EntityStrength />
                     </div>
                     <FormDescription>
-                        Write normal prose; each reference defines an attribute:{' '}
+                        Describe the entity and its attributes using the following syntax:  
                         <Typo.inlineCode>{'{setName}[count]'}</Typo.inlineCode>{' '}
                         for a named set, or{' '}
                         <Typo.inlineCode>{'{min..max}[count]'}</Typo.inlineCode>{' '}
                         for a numeric range (inclusive). Optional suffix after{' '}
                         <Typo.inlineCode>]</Typo.inlineCode>:{' '}
                         <Typo.inlineCode>!</Typo.inlineCode> (no repeat),{' '}
-                        <Typo.inlineCode>&gt;</Typo.inlineCode> (strict order).
-                        Lines starting with <Typo.inlineCode>#</Typo.inlineCode>{' '}
-                        are comments (refs ignored there).
+                        <Typo.inlineCode>&gt;</Typo.inlineCode> (strict order). Once the strength score reaches 1, the configuration is considered safe enough.
                     </FormDescription>
+                    {availableSets.length > 0 ? (
+                        <div className="flex items-center flex-wrap gap-2">
+                            <Typo.small>Available sets:</Typo.small>
+                            <div className="flex flex-wrap gap-2">
+                                {availableSets.map(({ setId, name }) => (
+                                    <span
+                                        key={setId}
+                                        className="inline-flex max-w-full items-center truncate rounded-md border border-border px-2 py-0.5 text-xs font-semibold text-foreground"
+                                    >
+                                        {name || 'Unnamed'}
+                                    </span>
+                                ))}
+                            </div>
+                        </div>
+                    ) : (
+                        <Typo.muted className="text-sm">
+                            No sets defined yet. Add at least one set first.
+                        </Typo.muted>
+                    )}
                     <FormControl>
                         {isEditing ? (
                             <Textarea
@@ -131,7 +159,7 @@ export const EntityDescriptionField = memo((props) => {
                         ) : (
                             <div
                                 role="presentation"
-                                className="min-h-[10rem] w-full py-1 font-mono text-sm text-foreground whitespace-pre-wrap break-words"
+                                className="min-h-[10rem] w-full p-2 border font-mono text-sm text-foreground whitespace-pre-wrap break-words"
                                 onDoubleClick={() => setIsEditing(true)}
                             >
                                 {entityDescription?.length ? (
@@ -154,7 +182,7 @@ export const EntityDescriptionField = memo((props) => {
                             variant="default"
                             onClick={() => setIsEditing((v) => !v)}
                         >
-                            {isEditing ? 'Preview' : 'Edit'}
+                            {isEditing ? 'Ok' : 'Edit'}
                         </Button>
                     </div>
                     <FormMessage />

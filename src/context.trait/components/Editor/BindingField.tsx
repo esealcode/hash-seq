@@ -24,13 +24,9 @@ export const BindingField = memo(() => {
             render={({ field }) => (
                 <FormItem>
                     <div className="space-y-1">
-                        <FormLabel>Binding</FormLabel>
+                        <Typo.h4>Manifold</Typo.h4>
                         <FormDescription>
-                            Which rules this signature applies to the entity. The
-                            raw entity description (including{' '}
-                            <Typo.inlineCode>{'{setName}[count]'}</Typo.inlineCode>
-                            -style references) is part of the same binding; set
-                            values are resolved only after the binding is fixed.
+                            The manifold is a piece of text that will seed the kernel, you can declare anything related to the entity here such as ownership, usage conditions etc.
                         </FormDescription>
                     </div>
                     <FormControl>
